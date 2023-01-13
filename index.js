@@ -21,12 +21,11 @@ app.post("/gpt3", async (req, res) => {
   let prompt = "";
 
   if (currentTrainingDataType === lastSentTrainingDataType) {
-    ongoingPrompt =
-      ongoingPrompt + "\nCustomer: " + req.body.prompt + "\nYou: ";
+    ongoingPrompt = ongoingPrompt + "User: " + req.body.prompt + "\nYou: ";
     prompt = ongoingPrompt;
   } else {
     ongoingPrompt = req.body.dataToSend;
-    prompt = ongoingPrompt + "\nCustomer: " + req.body.prompt + "\nYou: ";
+    prompt = ongoingPrompt + "User: " + req.body.prompt + "\nYou: ";
   }
 
   lastSentTrainingDataType = currentTrainingDataType;
@@ -35,12 +34,14 @@ app.post("/gpt3", async (req, res) => {
     .createCompletion({
       model: "text-davinci-003",
       prompt,
-      max_tokens: 500,
+      max_tokens: 1000,
       temperature: 0.5,
     })
     .then((response) => {
       res.json({
-        text: response.data.choices[0].text,
+        text: response.data.choices[0].text
+          .replace(/You:/g, "")
+          .replace(/User:.*$/g, ""),
       });
       ongoingPrompt = ongoingPrompt + "\nYou: " + response.data.choices[0].text;
     })

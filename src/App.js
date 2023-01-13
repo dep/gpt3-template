@@ -13,6 +13,8 @@ const GPT3 = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    setPrompt("");
+
     try {
       const dataToSend = trainingData[trainingDataType || "none"];
 
@@ -41,28 +43,27 @@ const GPT3 = () => {
           onChange={(e) => setTrainingDataType(e.target.value)}
           value={trainingDataType}
         >
-          <option>None</option>
-          <option value="retention">Retention Bot</option>
-          <option value="optimism">Optimism Bot</option>
-          <option value="confidence">Confidence Bot</option>
-          <option value="negotiation">Negotiation Bot</option>
-          <option value="snarky">Snarky Bot</option>
+          {Object.keys(trainingData).map((key) => (
+            <option value={key}>{key}</option>
+          ))}
         </select>
         <label htmlFor="prompt">Prompt:</label>
         <div>
-          <textarea
+          <input
             type="text"
             id="prompt"
             name="prompt"
             value={prompt}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") {
+                e.target.form.dispatchEvent(
+                  new Event("submit", { cancelable: true })
+                );
+              }
+            }}
             onChange={(e) => setPrompt(e.target.value)}
-          >
-            {prompt}
-          </textarea>
+          />
         </div>
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Send to GPT-3"}
-        </button>
       </form>
       {response && <div className="response">{response}</div>}
     </div>
